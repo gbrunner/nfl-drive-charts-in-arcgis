@@ -240,36 +240,35 @@ def get_drive_plays(drive):
 def main(ome, away, year, week, reg_post, output_gdb, output_fc):
     game = nflgame.one(year, week, home,away, reg_post)
 
-##    print('Create drive feature class.')
-##    create_drive_feature_class(output_gdb, output_fc)
-
     print('Getting drive data.')
     drives = get_game_drives(game)
     drive_count = get_num_drives(drives)
 
-##    print('Opening insert cursor.')
-##    cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, output_fc),drive_fields)
-##
-##    drive_bar_height = 533.3/(drive_count)
-##    for drive in drives:
-##        if drive.field_start:
-##            start_x, end_x = create_chart_polygon(drive, home, away)
-##            if start_x==end_x:
-##                array = arcpy.Array([arcpy.Point(start_x, (drive.drive_num-1)*drive_bar_height),
-##                         arcpy.Point(end_x+0.1, (drive.drive_num-1)*drive_bar_height),
-##                         arcpy.Point(end_x+0.1, (drive.drive_num-1)*drive_bar_height+(drive_bar_height-1)),
-##                         arcpy.Point(start_x, (drive.drive_num-1)*drive_bar_height+(drive_bar_height-1))])
-##            else:
-##                array = arcpy.Array([arcpy.Point(start_x, (drive.drive_num-1)*drive_bar_height),
-##                         arcpy.Point(end_x, (drive.drive_num-1)*drive_bar_height),
-##                         arcpy.Point(end_x, (drive.drive_num-1)*drive_bar_height+(drive_bar_height-1)),
-##                         arcpy.Point(start_x, (drive.drive_num-1)*drive_bar_height+(drive_bar_height-1))])
-##            polygon= arcpy.Polygon(array)
-##
-##            print(str(drive))
-##            cursor.insertRow([polygon, drive.team, drive.drive_num, str(drive.field_start),str(drive.field_end),str(drive.pos_time.__dict__['minutes']) + ' min and ' + str(drive.pos_time.__dict__['seconds']) + ' sec', drive.result, str(drive)])
+    print('Create drive feature class.')
+    create_drive_feature_class(output_gdb, output_fc)
 
-    #print('Done.')
+    print('Opening insert cursor.')
+    cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, output_fc),drive_fields)
+
+    drive_bar_height = 533.3/(drive_count)
+    for drive in drives:
+        if drive.field_start:
+            start_x, end_x = create_chart_polygon(drive, home, away)
+            if start_x==end_x:
+                array = arcpy.Array([arcpy.Point(start_x, (drive_count-(drive.drive_num))*drive_bar_height),
+                         arcpy.Point(end_x+0.1, (drive_count-(drive.drive_num))*drive_bar_height),
+                         arcpy.Point(end_x+0.1, (drive_count-(drive.drive_num))*drive_bar_height+(drive_bar_height-1)),
+                         arcpy.Point(start_x, (drive_count-(drive.drive_num))*drive_bar_height+(drive_bar_height-1))])
+            else:
+                array = arcpy.Array([arcpy.Point(start_x, (drive_count-(drive.drive_num))*drive_bar_height),
+                         arcpy.Point(end_x, (drive_count-(drive.drive_num))*drive_bar_height),
+                         arcpy.Point(end_x, (drive_count-(drive.drive_num))*drive_bar_height+(drive_bar_height-1)),
+                         arcpy.Point(start_x, (drive_count-(drive.drive_num))*drive_bar_height+(drive_bar_height-1))])
+            polygon= arcpy.Polygon(array)
+
+            print(str(drive))
+            cursor.insertRow([polygon, drive.team, drive.drive_num, str(drive.field_start),str(drive.field_end),str(drive.pos_time.__dict__['minutes']) + ' min and ' + str(drive.pos_time.__dict__['seconds']) + ' sec', drive.result, str(drive)])
+
     for drive in drives:
         if drive.field_start:
             plays = get_drive_plays(drive)
@@ -310,11 +309,11 @@ if __name__ == '__main__':
     year = 2014#2015
     week = 5#15
     reg_post = 'POST'
-    output_gdb = "C:/NFL/superbowl_49_test6.gdb"
+    output_gdb = "C:/NFL/superbowl_xlix.gdb"
     output_fc = away + '_at_' + home
     main(home, away,year, week, reg_post, output_gdb, output_fc)
 
-    #build_football_field(output_gdb, "field")
-    #build_yard_lines(output_gdb, "yard_lines")
+    build_football_field(output_gdb, "field")
+    build_yard_lines(output_gdb, "yard_lines")
 
     print('Done.')
