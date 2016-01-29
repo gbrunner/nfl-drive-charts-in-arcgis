@@ -25,8 +25,9 @@ def get_num_drives(drives):
     return drive_count
 
 def get_num_plays(plays):
+    play_count = 0
     for play in plays:
-        play_count = play.play_num
+        play_count+=1
 
     return play_count
 
@@ -45,56 +46,56 @@ def get_play_type(play):
     play_info = play.__dict__
 
     if "rushing_att" in play_info:
-        play_type = "rush"
+        play_type = "Rush"
         play_result = play.rushing_yds
     if "passing_att" in play_info:
-        play_type = "pass"
+        play_type = "Pass"
         play_result = play.passing_yds
     if "kicking_tot" in play_info:
-        play_type = "kick"
+        play_type = "Kick"
         play_result = play.kicking_yds
     if "punting_tot" in play_info:
-        play_type = "punt"
+        play_type = "Punt"
         play_result = play.punting_yds
     if "kicking_fga" in play_info:
-        play_type = "field goal"
+        play_type = "Field Goal"
         if play_info.get("kicking_fgmissed", 0):
-            play_type = play_type + " missed"
+            play_type = play_type + " Missed"
             play_result = 0
         else:
-            play_type = play_type + "made"
+            play_type = play_type + " Made"
             play_result = 0
 
     if "defense_sk_yds" in play_info:
-        play_type = "sack"
+        play_type = "Sack"
         play_result = play.defense_sk_yds
 
     if "penalty" in play_info:
-        play_type = "penalty"
-        play_result = play.penalty_yds
+        play_type = "Penalty"
+        play_result = -play.penalty_yds
 
     if "defense_int" in play_info:
-        play_type = "interception"
+        play_type = "Interception"
         play_result = 0 #play.defense_int_yds
 
     if "timeout" in play_info:
-        play_type = "timeout"
+        play_type = "Timeout"
 
     if "touchdown" in play_info:
         if play_info["touchdown"]:
-            play_type = str(play_type) + " touchdown"
+            play_type = str(play_type) + " Touchdown"
 
     if "fumbles_tot" in play_info:
         if play_info.get('fumbles_lost', None):
-            play_type = str(play_type) + " fumble lost"
+            play_type = str(play_type) + " Fumble Lost"
         else:
-            play_type = str(play_type) + " fumble recovered"
+            play_type = str(play_type) + " Fumble Recovered"
 
     if "kicking_xpa" in play_info:
         if play_info["kicking_xpmade"]:
-            play_type = "extra point (1 point)"
+            play_type = "Extra Point (GOOD)"
         else:
-            play_type = "extra point (FAILED)"
+            play_type = "Extra Point (FAILED)"
 
     if not play_type:
         print(play_info)
@@ -271,36 +272,38 @@ def main(ome, away, year, week, reg_post, output_gdb, output_fc):
 
     for drive in drives:
         if drive.field_start:
-            plays = get_drive_plays(drive)
-            print("Looking at drive " + str(drive.drive_num))
-            create_play_feature_class(output_gdb, "drive_"+str(drive.drive_num))
-            cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, "drive_"+str(drive.drive_num)),play_fields)
-            play_num = 1
-            play_bar_height = 20
-            for play in plays:
-                #print(play)
-                if play.yardline:
-                    print(play.yardline)
-                    print(play.time.__dict__)
-                    play_type, yds = get_play_type(play)
-                    if not yds:
-                        yds = 0
-                    start_x, end_x = create_play_polygon(drive, play, int(yds), home, away)
-                    if int(yds)==0:
-                        array = arcpy.Array([arcpy.Point(start_x, (play_num-1)*play_bar_height),
-                             arcpy.Point(end_x+0.1, (play_num-1)*play_bar_height),
-                             arcpy.Point(end_x+0.1, (play_num-1)*play_bar_height+(play_bar_height-1)),
-                             arcpy.Point(start_x, (play_num-1)*play_bar_height+(play_bar_height-1))])
-                    else:
-                        array = arcpy.Array([arcpy.Point(start_x, (play_num-1)*play_bar_height),
-                             arcpy.Point(end_x, (play_num-1)*play_bar_height),
-                             arcpy.Point(end_x, (play_num-1)*play_bar_height+(play_bar_height-1)),
-                             arcpy.Point(start_x, (play_num-1)*play_bar_height+(play_bar_height-1))])
-                    polygon= arcpy.Polygon(array)
-                    print(str(play))
-                    if (play_type != "punt") or (play_type!="kick"):
-                        cursor.insertRow([polygon, drive.team, drive.drive_num, str(play.yardline),"",str(play.time), play_type, yds, str(play)])
-                        play_num=play_num+1
+            if drive.drive_num > 0:
+                plays = get_drive_plays(drive)
+                play_count = get_num_plays(plays)
+                print("Looking at drive " + str(drive.drive_num))
+                create_play_feature_class(output_gdb, "drive_"+str(drive.drive_num))
+                cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, "drive_"+str(drive.drive_num)),play_fields)
+                play_num = 1
+                play_bar_height = (533.3/2)/(play_count)
+                initial_y = (play_count/2)*play_bar_height+(533.3/2)
+                for play in plays:
+                    if play.yardline:
+                        print(play.yardline)
+                        print(play.time.__dict__)
+                        play_type, yds = get_play_type(play)
+                        if not yds:
+                            yds = 0
+                        start_x, end_x = create_play_polygon(drive, play, int(yds), home, away)
+                        if int(yds)==0:
+                            array = arcpy.Array([arcpy.Point(start_x, initial_y - (play_num-1)*play_bar_height),
+                                 arcpy.Point(end_x+0.1, initial_y - (play_num-1)*play_bar_height),
+                                 arcpy.Point(end_x+0.1, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1)),
+                                 arcpy.Point(start_x, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1))])
+                        else:
+                            array = arcpy.Array([arcpy.Point(start_x, initial_y - (play_num-1)*play_bar_height),
+                                 arcpy.Point(end_x, initial_y - (play_num-1)*play_bar_height),
+                                 arcpy.Point(end_x, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1)),
+                                 arcpy.Point(start_x, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1))])
+                        polygon= arcpy.Polygon(array)
+                        print(str(play))
+                        if (play_type != "punt") or (play_type!="kick"):
+                            cursor.insertRow([polygon, drive.team, drive.drive_num, str(play.yardline),"",str(play.time), play_type, yds, str(play)])
+                            play_num=play_num+1
 
 
 if __name__ == '__main__':
@@ -309,7 +312,7 @@ if __name__ == '__main__':
     year = 2014#2015
     week = 5#15
     reg_post = 'POST'
-    output_gdb = "C:/NFL/superbowl_xlix.gdb"
+    output_gdb = "C:/PROJECTS/R&D/NFL/superbowl_xlix.gdb"
     output_fc = away + '_at_' + home
     main(home, away,year, week, reg_post, output_gdb, output_fc)
 
