@@ -30,14 +30,13 @@ require([
     Tiled
   ) {
 
-
-    var tiled = new Tiled("http://mapserv.utah.gov/arcgis/rest/services/BaseMaps/Terrain/MapServer");
-    map.addLayer(tiled);
-
     var map = new Map("map", {
       center: [0,0],
       zoom: 17
     });
+    
+    var tiled = new Tiled("http://mapserv.utah.gov/arcgis/rest/services/BaseMaps/Terrain/MapServer");
+    map.addLayer(tiled);
     
     var tiled = new Tiled("http://mapserv.utah.gov/arcgis/rest/services/BaseMaps/Terrain/MapServer");
     map.addLayer(tiled);
