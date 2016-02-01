@@ -33,14 +33,6 @@ def get_num_plays(plays):
 
 
 def get_play_type(play):
-    """
-        Parses the play to determine the play type.
-        Current solution is more-or-less brute force
-        input:
-            nflgame.play
-        Returns:
-            type of play [pass, rush, kick, fumble, penalty, sack, fg, touchdown, interception]
-    """
     play_type = None
     play_result = None
     play_info = play.__dict__
@@ -108,7 +100,7 @@ def build_football_field(output_gdb, output_feature_class):
     print('Creating football field.')
     fc = os.path.join(output_gdb,output_feature_class)
     if not arcpy.Exists(os.path.join(output_gdb,output_feature_class)):
-        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]","#","0","0","0")
+        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", arcpy.SpatialReference("WGS 1984 Web Mercator (auxiliary sphere)"),"#","0","0","0")
         arcpy.AddField_management(fc, footbal_field_fields[1],"TEXT", "", "", 20)
 
     cursor = arcpy.da.InsertCursor(fc,footbal_field_fields)
@@ -139,21 +131,21 @@ def build_yard_lines(output_gdb, output_feature_class):
     print('Creating yard markers.')
     fc = os.path.join(output_gdb,output_feature_class)
     if not arcpy.Exists(os.path.join(output_gdb,output_feature_class)):
-        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYLINE","#","DISABLED","DISABLED", "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]","#","0","0","0")
+        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYLINE","#","DISABLED","DISABLED", arcpy.SpatialReference("WGS 1984 Web Mercator (auxiliary sphere)"),"#","0","0","0")
         arcpy.AddField_management(fc, footbal_line_fields[1],"TEXT", "", "", 10)
 
     cursor = arcpy.da.InsertCursor(fc,footbal_line_fields)
-    markers = [1,2,3,4,5,6,7,8,9]
+    markers = [10,20,30,40,50,60,70,80,90]
     for marker in markers:
-        line_1 = arcpy.Array([arcpy.Point(marker*100,533.3/2),
-                     arcpy.Point(marker*100,0)])
-        line_2 = arcpy.Array([arcpy.Point(marker*100,533.3/2),
-                     arcpy.Point(marker*100,533.3)])
+        line_1 = arcpy.Array([arcpy.Point(marker*10,533.3/2),
+                     arcpy.Point(marker*10,0)])
+        line_2 = arcpy.Array([arcpy.Point(marker*10,533.3/2),
+                     arcpy.Point(marker*10,533.3)])
         field_line_1= arcpy.Polyline(line_1)
         field_line_2= arcpy.Polyline(line_2)
-        if marker > 5:
-            cursor.insertRow([field_line_1, str(10-marker)])
-            cursor.insertRow([field_line_2, str(10-marker)])
+        if marker > 50:
+            cursor.insertRow([field_line_1, str(100-marker)])
+            cursor.insertRow([field_line_2, str(100-marker)])
         else:
             cursor.insertRow([field_line_1, str(marker)])
             cursor.insertRow([field_line_2, str(marker)])
@@ -166,8 +158,7 @@ def create_drive_feature_class(output_gdb, output_feature_class):
 
     fc = os.path.join(output_gdb,output_feature_class)
     if not arcpy.Exists(os.path.join(output_gdb,output_feature_class)):
-        #"PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]", transform_method="", in_coor_system="GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]]"
-        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]","#","0","0","0")
+        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", arcpy.SpatialReference("WGS 1984 Web Mercator (auxiliary sphere)"),"#","0","0","0")
         arcpy.AddField_management(fc, drive_fields[1],"TEXT", "", "", 10)
         arcpy.AddField_management(fc, drive_fields[2],"SHORT", "", "", "")
         arcpy.AddField_management(fc, drive_fields[3],"TEXT", "", "", 10)
@@ -183,8 +174,7 @@ def create_play_feature_class(output_gdb, output_feature_class):
 
     fc = os.path.join(output_gdb,output_feature_class)
     if not arcpy.Exists(os.path.join(output_gdb,output_feature_class)):
-        #"PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]", transform_method="", in_coor_system="GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]]"
-        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]","#","0","0","0")
+        arcpy.CreateFeatureclass_management(output_gdb,output_feature_class,"POLYGON","#","DISABLED","DISABLED", arcpy.SpatialReference("WGS 1984 Web Mercator (auxiliary sphere)"),"#","0","0","0")
         arcpy.AddField_management(fc, play_fields[1],"TEXT", "", "", 10)
         arcpy.AddField_management(fc, play_fields[2],"SHORT", "", "", "")
         arcpy.AddField_management(fc, play_fields[3],"TEXT", "", "", 10)
@@ -238,15 +228,17 @@ def get_game_drives(game):
 def get_drive_plays(drive):
     return [play for play in drive.plays]
 
-def main(ome, away, year, week, reg_post, output_gdb, output_fc):
+def main(home, away, year, week, reg_post, output_gdb, output_fc):
+
+    print('Create drive feature class.')
+    create_drive_feature_class(output_gdb, output_fc)
+
+    print('Getting game data.')
     game = nflgame.one(year, week, home,away, reg_post)
 
     print('Getting drive data.')
     drives = get_game_drives(game)
     drive_count = get_num_drives(drives)
-
-    print('Create drive feature class.')
-    create_drive_feature_class(output_gdb, output_fc)
 
     print('Opening insert cursor.')
     cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, output_fc),drive_fields)
@@ -279,12 +271,10 @@ def main(ome, away, year, week, reg_post, output_gdb, output_fc):
                 create_play_feature_class(output_gdb, "drive_"+str(drive.drive_num))
                 cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, "drive_"+str(drive.drive_num)),play_fields)
                 play_num = 1
-                play_bar_height = (533.3/2)/(play_count)
+                play_bar_height = 30 #(533.3/2)/(play_count)
                 initial_y = (play_count/2)*play_bar_height+(533.3/2)
                 for play in plays:
                     if play.yardline:
-                        print(play.yardline)
-                        print(play.time.__dict__)
                         play_type, yds = get_play_type(play)
                         if not yds:
                             yds = 0
@@ -300,18 +290,19 @@ def main(ome, away, year, week, reg_post, output_gdb, output_fc):
                                  arcpy.Point(end_x, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1)),
                                  arcpy.Point(start_x, initial_y - (play_num-1)*play_bar_height-(play_bar_height-1))])
                         polygon= arcpy.Polygon(array)
-                        print(str(play))
-                        if (play_type != "punt") or (play_type!="kick"):
+                        #print(str(play))
+                        if (play_type != "Punt") and (play_type!="Kick"):
+                            print(play_type)
                             cursor.insertRow([polygon, drive.team, drive.drive_num, str(play.yardline),"",str(play.time), play_type, yds, str(play)])
                             play_num=play_num+1
 
 
 if __name__ == '__main__':
     home = 'SEA'#'PIT'
-    away = 'NE'#'DEN'
-    year = 2014#2015
-    week = 5#15
-    reg_post = 'POST'
+    away = 'NE' #'DEN'
+    year = 2014 #2015
+    week = 5    #15
+    reg_post = 'POST' #'REG'
     output_gdb = "C:/PROJECTS/R&D/NFL/superbowl_xlix.gdb"
     output_fc = away + '_at_' + home
     main(home, away,year, week, reg_post, output_gdb, output_fc)
