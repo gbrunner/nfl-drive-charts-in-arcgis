@@ -35,18 +35,9 @@ require([
       zoom: 17
     });
     
-    var tiled = new Tiled("http://mapserv.utah.gov/arcgis/rest/services/BaseMaps/Terrain/MapServer");
+    var tiled = new Tiled("http://tiles.arcgis.com/tiles/g2TonOxuRkIqSOFx/arcgis/rest/services/FootballField/MapServer");
     map.addLayer(tiled);
     
-    var tiled = new Tiled("http://mapserv.utah.gov/arcgis/rest/services/BaseMaps/Terrain/MapServer");
-    map.addLayer(tiled);
-
-    /****************************************************************
-     * Add feature layer - A FeatureLayer at minimum should point
-     * to a URL to a feature service or point to a feature collection 
-     * object.
-     ***************************************************************/
-
     // Carbon storage of trees in Warren Wilson College.
     var featureLayer = new FeatureLayer("http://services1.arcgis.com/g2TonOxuRkIqSOFx/arcgis/rest/services/Superbowl_XLIX_Drives/FeatureServer/2");
 
