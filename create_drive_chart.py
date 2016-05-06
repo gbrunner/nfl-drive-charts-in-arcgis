@@ -247,33 +247,33 @@ def main(home, away, year, week, reg_post, output_gdb, output_fc):
     drives = get_game_drives(game)
     drive_count = get_num_drives(drives)
 
-    print('Opening insert cursor.')
-    cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, output_fc),
-                                   drive_fields)
+print('Opening insert cursor.')
+cursor = arcpy.da.InsertCursor(os.path.join(output_gdb, output_fc),
+                               drive_fields)
 
-    drive_bar_height = 533.3 / drive_count
-    for drive in drives:
-        if drive.field_start:
-            start_x, end_x = create_chart_polygon(drive, home, away)
-            if start_x == end_x:
-                polygon = [
-                    (start_x, (drive_count - drive.drive_num) * drive_bar_height),
-                    (end_x + 0.1, (drive_count - drive.drive_num) * drive_bar_height),
-                    (end_x + 0.1, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1)),
-                    (start_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1))]
-            else:
-                polygon = [
-                    (start_x, (drive_count - drive.drive_num) * drive_bar_height),
-                    (end_x, (drive_count - drive.drive_num) * drive_bar_height),
-                    (end_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1)),
-                    (start_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1))]
+drive_bar_height = 533.3 / drive_count
+for drive in drives:
+    if drive.field_start:
+        start_x, end_x = create_chart_polygon(drive, home, away)
+        if start_x == end_x:
+            polygon = [
+                (start_x, (drive_count - drive.drive_num) * drive_bar_height),
+                (end_x + 0.1, (drive_count - drive.drive_num) * drive_bar_height),
+                (end_x + 0.1, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1)),
+                (start_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1))]
+        else:
+            polygon = [
+                (start_x, (drive_count - drive.drive_num) * drive_bar_height),
+                (end_x, (drive_count - drive.drive_num) * drive_bar_height),
+                (end_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1)),
+                (start_x, (drive_count - drive.drive_num) * drive_bar_height + (drive_bar_height - 1))]
 
-            print(str(drive))
-            cursor.insertRow([polygon, drive.team, drive.drive_num,
-                              str(drive.field_start), str(drive.field_end),
-                              str(drive.pos_time.__dict__['minutes']) + ' min and ' +
-                              str(drive.pos_time.__dict__['seconds']) + ' sec',
-                              drive.result, str(drive)])
+        print(str(drive))
+        cursor.insertRow([polygon, drive.team, drive.drive_num,
+                          str(drive.field_start), str(drive.field_end),
+                          str(drive.pos_time.__dict__['minutes']) + ' min and ' +
+                          str(drive.pos_time.__dict__['seconds']) + ' sec',
+                          drive.result, str(drive)])
 
     for drive in drives:
         if drive.field_start:
